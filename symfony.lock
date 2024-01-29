@@ -34,6 +34,7 @@
             "src/DataFixtures/AppFixtures.php"
         ]
     },
+
     "doctrine/doctrine-migrations-bundle": {
         "version": "3.2",
         "recipe": {
@@ -124,6 +125,7 @@
             "config/routes.yaml"
         ]
     },
+
     "symfony/security-bundle": {
         "version": "6.3",
         "recipe": {

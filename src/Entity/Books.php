@@ -125,19 +125,19 @@ class Books
     }
 
     /**
-     * @return Collection<int, User>
+     * @return User|null
      */
-    public function getUser(): Collection
+    public function getUser(): ?User
     {
         return $this->users;
     }
+
     public function setUsers(?User $users): static
-{
-    $this->users= $users;
+    {
+        $this->users= $users;
 
-    return $this;
-}
-
+        return $this;
+    }
     public function addUser(User $users): static
     {
         if (!$this->users->contains($users)) {

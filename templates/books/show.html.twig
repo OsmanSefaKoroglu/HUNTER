@@ -48,23 +48,25 @@
 
            {% if is_granted('ROLE_USER') %}
     <a href="/books/read/ {{book.id}}"
-        class="bg-green-500 font-bold py-2 px-4 ml-6 rounded transition-all
-        hover:bg-green-300">
-        Referenced
+       class="bg-blue-700 text-gray-50 text-lg font-bold py-4 px-12 ml-6 rounded transition-all
+        hover:bg-green-500 hover:text-blue-700">
+        Başvuruldu
         </a> 
 {% endif %}
-
+        {% if is_granted('ROLE_USER') %}
+            <a href="/books/will/ {{book.id}}"
+               class="bg-blue-700 text-gray-50 text-lg font-bold py-4 px-12 ml-6 rounded transition-all
+        hover:bg-yellow-400 hover:text-blue-700">
+                Başvurulacak
+            </a>
+        {% endif %}
 {% if is_granted('ROLE_USER') %}
  <a href="/books/remove/ {{book.id}}"
-        class="bg-red-500 font-bold py-2 px-4 ml-6 rounded transition-all
-        hover:bg-red-300">
-        Remove From Referenced
+    class="bg-blue-700 text-gray-50 text-lg font-bold py-4 px-12 ml-6 rounded transition-all
+        hover:bg-red-700 hover:text-black">
+      Başvurudan Kaldır
         </a>
 {% endif %}
-       
-   
-      
 
-        
     </div>
 {% endblock %}

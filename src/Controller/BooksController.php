@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Books;
+use App\Entity\Cv;
 use App\Form\BooksFormType;
+use App\Form\CvFormType;
 use App\Repository\BooksRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,15 +45,44 @@ class BooksController extends AbstractController
             'books' => $books
         ]);
     }
-    #[Route('/whatWeDo', name: 'wWD')]
-    public function wWD(): Response
+
+    #[Route('/cv/application', name: 'create_cv')]
+    public function application(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_USER', null ,'buraya erişim yetkiniz yok');
+
+        $cv= new Cv();
+        $form = $this->createForm(CvFormType::class, $cv);
+
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form ->isValid()){
+            $newCv=$form->getData();
+
+            $imagePath=$form->get('imagePath')->getData();
+            if($imagePath){
+                $newFileName=uniqid().'.'. $imagePath->guessExtension();
+                try{
+                    $imagePath->move(
+                        $this->getParameter('kernel.project_dir').'/public/uploads',
+                        $newFileName
+                    );
+                }catch(FileException $e){
+                    return new Response($e->getMessage());
+
+                }
+                $newCv->setImagePath('/uploads/'.$newFileName);
+            }
+            $this->em->persist($newCv);
+            $this->em->flush();
+
+            return $this->redirectToRoute('home');
+        }
 
 
-
-        return $this->render('books/wWD.html.twig');
+        return $this->render('cv/application.html.twig',[
+            'form'=>$form->createView()
+        ]);
     }
- 
     #[Route('/books/create', name: 'create_book')]
     public function create(Request $request): Response
     {
@@ -147,7 +178,7 @@ class BooksController extends AbstractController
     #[Route('/books/delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_book')]
     public function delete($id): Response
     {
-        
+
         $this->denyAccessUnlessGranted('ROLE_ADMIN',NULL,'BURAYA ERİŞİM YETKİNİZ YOK');
         $this->checkLoggedInUser($id);
         $book = $this->BooksRepository->find($id);
@@ -179,10 +210,10 @@ class BooksController extends AbstractController
     }
     #[Route('/books/remove/{id}', name: 'remove_book')]
     public function remove($id, Request $request): Response
-    {       
+    {
          $book = $this->BooksRepository->find($id);
 
-        
+
         if ($book) {
             $users= $this->getUser();
             $users->removeBook($book);
@@ -190,10 +221,31 @@ class BooksController extends AbstractController
             $book = $this->BooksRepository->find($id);
             $this->em->persist($users);
             $this->em->flush();
-    
 
-            
+
+
             return $this->redirectToRoute('referenced');
+        }
+
+        return $this->redirectToRoute('books');
+    }
+    #[Route('/books/will/{id}', name: 'will_book')]
+    public function basvurulacak($id, Request $request): Response
+    {
+        $book = $this->BooksRepository->find($id);
+
+
+        if ($book) {
+            $users = $this->getUser();
+            $users->addBook($book);
+
+            $book = $this->BooksRepository->find($id);
+            $this->em->persist($users);
+            $this->em->flush();
+
+
+
+            return $this->redirectToRoute('will');
         }
 
         return $this->redirectToRoute('books');
@@ -216,6 +268,14 @@ class BooksController extends AbstractController
        
         return $this->render('books/profil.html.twig', [
             
+        ]);
+    }
+    #[Route('/will', name: 'will')]
+    public function will(): Response
+    {
+
+        return $this->render('books/will.html.twig', [
+
         ]);
     }
     #[Route('/referenced', name: 'referenced')]

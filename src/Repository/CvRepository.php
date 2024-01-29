@@ -20,7 +20,14 @@ class CvRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Cv::class);
     }
+    public function save(Cv $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
 
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 //    /**
 //     * @return Cv[] Returns an array of Cv objects
 //     */
